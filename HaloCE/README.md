@@ -9,7 +9,7 @@ This repo is very much a WIP but wanted to share the current state of the code w
   - Show each player's individual stats
   - Show each player's current weapon
   - Track series score
-    - Can you combinatin of boxes and player names to determine when to reset
+    - Can use combination of boxes and player names to determine when to reset
 - Create live minimap
   - Track the realtime location of every player
 - Generate POV name overlays
