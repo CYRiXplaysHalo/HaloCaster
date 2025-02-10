@@ -7,6 +7,7 @@ This repo is very much a WIP but wanted to share the current state of the code w
 - Create scoreboard overlay
   - Show each team's stats
   - Show each player's individual stats
+  - Show each player's current weapon
   - Track series score
     - Can you combinatin of boxes and player names to determine when to reset
 - Create live minimap
