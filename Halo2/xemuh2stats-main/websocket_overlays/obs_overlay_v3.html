@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="websocket_client.js"></script>
+        <script src="config.js"></script>
+        <script src="app-v3.js"></script>
+        <style>
+			@font-face {
+                font-family: 'UniversCondensedBold';
+                src: url('univers67condensedbold.otf') format('opentype');
+                font-weight: bold;
+                font-style: normal;
+            }
+
+            body {
+                font-family: 'UniversCondensedBold', sans-serif;
+                font-size: 30px;
+                opacity: .9;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: #0F1A2A; /* Halo background style */
+                color: white;
+            }
+            table {
+                border-collapse: collapse;
+                width: 20%; /* General table width set to 20% */
+                margin: 20px auto;
+                table-layout: fixed;
+                background-color: #0F1A2A;
+            }
+            th, td {
+                padding: 2px; /* Minimal padding */
+                text-align: center;
+                font-weight: bold;
+                border: none;
+                font-size: 1.1em;
+                height: 1.5em; /* Minimal height */
+            }
+            th {
+                text-transform: uppercase;
+                background-color: #243855;
+                color: white;
+                border-bottom: 3px solid #1A2C45;
+            }
+            td {
+                background-color: rgba(0, 0, 0, 0.4);
+                color: white;
+            }
+
+            /* Red Team Column Width Adjustments */
+            #red-team-table th:first-child, #red-team-table td:first-child { 
+                width: 70%; /* Wider Player column for Red Team */
+                text-align: left; /* Left-align Player names */
+            }
+            #red-team-table th:not(:first-child), #red-team-table td:not(:first-child) {
+                width: 10%; /* Smaller width for Kills, Assists, Deaths */
+            }
+
+            /* Blue Team Column Width Adjustments */
+            #blue-team-table th:last-child, #blue-team-table td:last-child {
+                width: 70%; /* Wider Player column for Blue Team */
+                text-align: left; /* Left-align Player names */
+            }
+            #blue-team-table th:not(:last-child), #blue-team-table td:not(:last-child) {
+                width: 10%; /* Smaller width for Kills, Assists, Deaths */
+            }
+
+            /* Red Team Styling */
+            #red-team-table th {
+                background-color: #D40000;
+                color: white;
+            }
+            #red-team-table tbody tr {
+                background-color: #A10000;
+            }
+            #red-team-table td {
+                color: #FFBBBB;
+            }
+
+            /* Blue Team Styling */
+            #blue-team-table th {
+                background-color: #3A8BFF;
+                color: white;
+            }
+            #blue-team-table tbody tr {
+                background-color: #2A4C91;
+            }
+            #blue-team-table td {
+                color: #ADD8FF;
+            }
+
+            /* General Styling */
+            #red-team-table, #blue-team-table {
+                width: 20%;
+                margin-bottom: 20px;
+            }
+            #red-team-table {
+                float: left;
+                margin-left: 0%;
+                margin-top: 20%;
+            }
+            #blue-team-table {
+                float: right;
+                margin-right: 0%;
+                margin-top: 20%;
+            }
+        </style>
+    </head>
+    <body>
+        <table id="red-team-table">
+            <thead>
+              <tr>
+                <th>Player</th>
+                <th>K</th>
+                <th>A</th>
+                <th>D</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+        </table>
+
+        <table id="blue-team-table">
+            <thead>
+              <tr>
+                <th>K</th>
+                <th>A</th>
+                <th>D</th>
+                <th>Player</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+        </table>
+    </body>
+</html>

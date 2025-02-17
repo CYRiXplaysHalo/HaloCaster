@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halo 2 Player Location Minimap</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        #minimap {
+            border: 1px solid black;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Halo 2 Player Location Minimap</h1>
+
+    <!-- WebSocket connection inputs and controls -->
+    <label for="serverIp">Server IP:</label>
+    <input type="text" id="serverIp" placeholder="e.g., localhost"><br>
+    
+    <label for="serverPort">Server Port:</label>
+    <input type="text" id="serverPort" placeholder="e.g., 8080"><br>
+    
+    <button id="connectBtn">Connect</button>
+    <p id="connectionStatus">Not connected</p>
+
+    <!-- Minimap Canvas -->
+    <canvas id="minimap" width="500" height="500"></canvas>
+
+    <script>
+        // Canvas minimap variables
+        const canvas = document.getElementById('minimap');
+        const ctx = canvas.getContext('2d');
+        const canvasSize = 500;
+        const halfCanvasSize = canvasSize / 2;
+        const worldSize = 50; // Range of [-25, 25]
+        const scale = canvasSize / worldSize; // Scaling factor for world units to canvas
+
+        // Define Z-value range (height) for scaling circles
+        const zMin = -20; // Lowest Z value (most negative)
+        const zMax = 10;   // Highest Z value (closest to zero)
+        const circleMinSize = 2;  // Minimum circle size
+        const circleMaxSize = 10; // Maximum circle size
+
+        let playersData = {};
+
+        // WebSocket Client
+        class WebSocketClient {
+            constructor() {
+                this.socket = null;
+                this.isConnected = false;
+                this.eventHandlers = {};
+            }
+
+            connect(wsUrl) {
+                return new Promise((resolve, reject) => {
+                    this.socket = new WebSocket(wsUrl);
+
+                    this.socket.addEventListener('open', (event) => {
+                        console.log('Connected to WebSocket server');
+                        this.isConnected = true;
+                        resolve();
+                    });
+
+                    this.socket.addEventListener('message', (event) => {
+                        this.handleMessage(event.data);
+                    });
+
+                    this.socket.addEventListener('error', (event) => {
+                        console.error('WebSocket error:', event);
+                        reject(event);
+                    });
+
+                    this.socket.addEventListener('close', (event) => {
+                        console.log('WebSocket connection closed:', event);
+                        this.isConnected = false;
+                        if (this.eventHandlers['close']) {
+                            this.eventHandlers['close'](event);
+                        }
+                    });
+                });
+            }
+
+            sendMessage(message) {
+                if (this.isConnected && this.socket.readyState === WebSocket.OPEN) {
+                    this.socket.send(JSON.stringify(message));
+                } else {
+                    console.warn('WebSocket is not connected.');
+                }
+            }
+
+            handleMessage(data) {
+                const responseWrapper = JSON.parse(data);
+                const response = responseWrapper.response;
+
+                // Handle player location data if the message type is get_players
+                if (responseWrapper.message_type === 'get_players') {
+                    playersData = response;
+                    drawMinimap();
+                }
+            }
+
+            on(eventType, handler) {
+                this.eventHandlers[eventType] = handler;
+            }
+        }
+
+        // Initialize WebSocket client
+        let wsClient = new WebSocketClient();
+
+        // Connection setup
+        document.getElementById('connectBtn').addEventListener('click', function () {
+            const serverIp = document.getElementById('serverIp').value.trim();
+            const serverPort = document.getElementById('serverPort').value.trim();
+
+            if (!serverIp || !serverPort) {
+                alert('Please enter both server IP and port.');
+                return;
+            }
+
+            const wsUrl = `ws://${serverIp}:${serverPort}`;
+            wsClient.connect(wsUrl).then(() => {
+                document.getElementById('connectionStatus').textContent = 'Connected to ' + wsUrl;
+
+                // Request location data periodically
+                setInterval(() => {
+                    const message = { message_type: 'get_players', arguments: { type: 'location' } };
+                    wsClient.sendMessage(message);
+                }, 200);
+            }).catch((error) => {
+                console.error('Connection error:', error);
+                document.getElementById('connectionStatus').textContent = 'Connection error';
+            });
+        });
+
+        // Function to draw the minimap
+        function drawMinimap() {
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Loop through each player in playersData
+            for (const playerName in playersData) {
+                const player = playersData[playerName];
+                const x = player.X; // X coordinate in world units
+                const y = player.Y; // Y coordinate in world units
+                const z = player.Z; // Z coordinate in world units (affects circle size)
+
+                // Convert world coordinates to canvas coordinates
+                const canvasX = halfCanvasSize + x * scale;
+                const canvasY = halfCanvasSize - y * scale;
+
+                // Normalize the Z value to determine circle size
+                const normalizedZ = (z - zMin) / (zMax - zMin); // Range [0, 1]
+                const circleSize = normalizedZ * (circleMaxSize - circleMinSize) + circleMinSize;
+
+                // Draw the player as a circle
+                ctx.beginPath();
+                ctx.arc(canvasX, canvasY, circleSize, 0, 2 * Math.PI);
+                ctx.fillStyle = 'blue';
+                ctx.fill();
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+#modify location message to include player's team (for color), their index for numbering, and maybe direction theyh are looking if possible?
+#work on integrating map backgrounds
+	#can we use constant xyz across all maps or nah?

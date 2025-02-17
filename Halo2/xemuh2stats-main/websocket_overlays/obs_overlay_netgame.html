@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="websocket_client.js"></script>
+        <script src="config.js"></script>
+        <script src="app-netgame.js"></script>
+        <style>
+            .netgame-container {
+                width: 200px;
+                height: 500px;
+                opacity: .85;
+            }
+            .netgame-item {
+                color: white;
+                font-size: 21px;
+                float: left;
+                width: 200px;
+                padding: 5px;
+            }
+            .netgame-name {
+                padding: 0;
+                margin: 0;
+                text-align: center;
+                background: rgb(117 117 117);
+                border-bottom: 1px solid black;
+            }
+            .netgame-progress {
+                padding: 0;
+                margin: 0;
+                background: rgb(117 117 117);
+                height: 25px;
+            }
+            .netgame-progress-time {
+                padding: 0;
+                margin: 0;
+                text-align: center;
+                position: absolute;
+                z-index: 2;
+                width: 200px;
+            }
+            .netgame-progress-line {
+                height: 25px;
+                -webkit-mask:linear-gradient(#fff 0 0);
+                mask:linear-gradient(#fff 0 0);
+                float: left;
+            }
+            .netgame-progress-line::before {
+                content:"";
+                position:absolute;
+                top:0;
+                left:0;
+                right:0;
+                bottom:0;
+                background-image: linear-gradient(45deg, #1400ff, #1400ff);
+            }
+        </style>
+    </head>
+    <body style="width: 200px;">
+        <template id="item-template">
+            <div class="netgame-item">
+                <p class="netgame-name">
+                    Over Shield
+                </p>
+                <div class="netgame-progress">
+                    <p class="netgame-progress-time">22</p>
+                    <div class="netgame-progress-line" style="width:50%"></div>
+                </div>
+            </div>
+        </template>
+        <div class="netgame-container">
+           
+        </div>
+    </body>
+</html>

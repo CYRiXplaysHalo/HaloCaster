@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="websocket_client.js"></script>
+        <script src="config.js"></script>
+        <script src="app-weapon.js"></script>
+        <style>
+            body{
+                font-size: 30px;
+                opacity: .9;
+            }
+            table {
+                border-collapse: separate;
+                border-spacing: 2px;
+                -transform: scale(3.0);
+                transform-origin: 0 0;
+                -webkit-transform-origin: 0 0;
+                -ms-transform-origin: 0 0;
+                -moz-transform-origin: 0 0;
+                text-align: center;
+            }
+            table, th, td {
+                border: none;
+                color: white;
+            }
+            th {
+                background-color: grey;
+                color: white;
+                min-height: 1em; /* Minimum height for header cells */
+            }
+            #red-team-table{
+                position: absolute;
+                top:0;
+                left:0;
+            }
+            #blue-team-table{
+                position: absolute;
+                top:0;
+                right:0;
+            }
+            #red-team-table tr {
+                background-color: red;
+                color: white;
+            }
+            #blue-team-table tr {
+                background-color: blue;
+                color: white;
+            }
+            th, td {
+                height: 1em; /* Minimum height for all cells */
+                padding: 0 5px;
+            }
+            #red-team-table th:first-child, #red-team-table td:first-child {
+                min-width: 16ch; /* Minimum width for the Player column */
+            }
+            #blue-team-table th:last-child, #blue-team-table td:last-child {
+                min-width: 16ch; /* Minimum width for the Player column */
+            }
+          </style>
+    </head>
+    <body>
+        <table id="weapon-table">
+            <thead>
+              <tr>
+                <th>weapon</th>
+                <th>K</th>
+                <th>D</th>
+                <th>S</th>
+                <th>SH</th>
+                <th>SF</th>
+                <th>H</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+        </table>
+    </body>
+</html>
