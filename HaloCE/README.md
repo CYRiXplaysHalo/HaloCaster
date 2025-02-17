@@ -6,7 +6,7 @@ This repo is very much a WIP but wanted to share the current state of the code w
 
 - Create scoreboard overlay
   - Show each team's stats
-  - Show each player's individual stats
+  - [x] Show each player's individual stats
   - Show each player's current weapon
   - Track series score
     - Can use combination of boxes and player names to determine when to reset
@@ -17,8 +17,8 @@ This repo is very much a WIP but wanted to share the current state of the code w
   - We know console names, and players are indexed, so that should be enough.
   - Player index should be in order they are in-game, but need to confirm
 - Generate in-game event feed overlay
-  - Similar to a sports play-by-play, a feed that updates primarily with who killed who
-  - Can get more complex things like which player picked up a powerup, a power weapon etc
+  - [x] Similar to a sports play-by-play, a feed that updates primarily with who killed who
+  - [x] Can get more complex things like which player picked up a powerup, a power weapon etc
 - Generate advaned postgame carnage report
   - How often did you give your teammate a random?
   - How many powerups and power weapons did you acquire?
