@@ -2576,6 +2576,11 @@ def main_loop():
 if __name__ == '__main__':
     gc.disable()
 
+    # Start the WebSocket server in a separate thread
+    websocket_thread = threading.Thread(target=ui.start_websocket_server, args=(game_info_queue,))
+    websocket_thread.daemon = True
+    websocket_thread.start()
+
     ui_thread = threading.Thread(target=ui.start_ui, args=(game_info_queue_for_ui,write_queue_from_ui,), daemon=True, name='ui_thread')
     ui_thread.start()
 

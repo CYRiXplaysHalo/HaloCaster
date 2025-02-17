@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            body {
+                font-size: 30px;
+                opacity: 0.9;
+                margin: 0;
+                padding: 0;
+                background: transparent;
+                color: white;
+                overflow: hidden;
+                width: 100vw;
+                height: 100vh;
+            }
+            table {
+                border-collapse: separate;
+                border-spacing: 2px;
+                transform: scale(1);
+                transform-origin: 0 0;
+                -webkit-transform-origin: 0 0;
+                -ms-transform-origin: 0 0;
+                -moz-transform-origin: 0 0;
+                text-align: center;
+            }
+            table, th, td {
+                border: none;
+            }
+            th {
+                background-color: grey;
+                color: white;
+                min-height: 1em;
+            }
+            #red-team-table {
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+            #blue-team-table {
+                position: absolute;
+                top: 0;
+                right: 0;
+            }
+            #red-team-table tr {
+                background-color: red;
+                color: white;
+            }
+            #blue-team-table tr {
+                background-color: blue;
+                color: white;
+            }
+            th, td {
+                height: 1em;
+                padding: 0 5px;
+            }
+            #red-team-table th:first-child, #red-team-table td:first-child {
+                min-width: 16ch;
+            }
+            #blue-team-table th:last-child, #blue-team-table td:last-child {
+                min-width: 16ch;
+            }
+            .dead {
+                opacity: 0.5;
+            }
+            .current-score {
+                position: absolute;
+                top: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 36px;
+                background: rgba(0, 0, 0, 0.7);
+                padding: 5px 20px;
+                border-radius: 5px;
+            }
+            .series-score {
+                position: absolute;
+                top: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 24px;
+                background: rgba(0, 0, 0, 0.7);
+                padding: 5px 10px;
+                border-radius: 5px;
+            }
+            /* Event List Container */
+            .event-list {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 400px; /* Adjust width as needed */
+                height: 150px; /* Fixed height */
+                overflow: hidden; /* Crop overflow */
+                background: rgba(0, 0, 0, 0.7);
+                padding: 10px;
+                font-size: 20px;
+                line-height: 1.5;
+            }
+            /* Gradient Overlay for Fade Effect */
+            .event-list::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 50px; /* Fade height */
+                background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.7));
+                pointer-events: none; /* Allow clicks to pass through */
+            }
+            /* Individual Event Items */
+            .event-item {
+                opacity: 1;
+                transition: opacity 0.5s ease;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Current Game Score -->
+        <div class="current-score">
+            <span id="red-score">0</span> - <span id="blue-score">0</span>
+        </div>
+
+        <!-- Series Score -->
+        <div class="series-score">
+            Series: <span id="red-series-score">0</span> - <span id="blue-series-score">0</span>
+        </div>
+
+        <!-- Red Team Table -->
+        <table id="red-team-table">
+            <thead>
+                <tr>
+                    <th>Player</th>
+                    <th>K</th>
+                    <th>A</th>
+                    <th>D</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows populated dynamically -->
+            </tbody>
+        </table>
+
+        <!-- Blue Team Table -->
+        <table id="blue-team-table">
+            <thead>
+                <tr>
+                    <th>K</th>
+                    <th>A</th>
+                    <th>D</th>
+                    <th>Player</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows populated dynamically -->
+            </tbody>
+        </table>
+
+        <!-- Event List -->
+        <div class="event-list" id="event-list">
+            <!-- Events will be populated dynamically -->
+        </div>
+
+        <script>
+            const socket = new WebSocket('ws://localhost:8765');
+            const eventList = document.getElementById('event-list');
+
+            // Helper function to format tick number into MM:SS
+            function formatTickToTime(tick) {
+                const seconds = Math.floor(tick / 30); // Convert ticks to seconds
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+            }
+
+            // Helper function to extract and camel-case map name
+            function formatMapName(mapName) {
+                if (!mapName) return '';
+                const parts = mapName.split('\\');
+                const lastPart = parts[parts.length - 1]; // Get the last part after the final backslash
+                return lastPart
+                    .replace(/[^a-zA-Z0-9]/g, ' ') // Replace non-alphanumeric characters with spaces
+                    .split(' ')
+                    .map((word, index) =>
+                        index === 0
+                            ? word.toLowerCase()
+                            : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                    )
+                    .join('');
+            }
+
+            // Helper function to round damage numbers to one decimal place
+            function roundDamage(damage) {
+                return Math.round(parseFloat(damage) * 10) / 10;
+            }
+
+            // Helper function to extract and format map name
+            function formatMapName(mapName) {
+                if (!mapName) return '';
+                const parts = mapName.split('\\');
+                
+                // Look for "levels\test" pattern
+                for (let i = 0; i < parts.length - 1; i++) {
+                    if (parts[i].toLowerCase() === 'levels' && 
+                        parts[i + 1].toLowerCase() === 'test' && 
+                        parts.length > i + 2) {
+                        // Get the next segment after "test" and format as PascalCase
+                        return parts[i + 2]
+                            .replace(/[^a-zA-Z0-9]/g, ' ')
+                            .split(' ')
+                            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                            .join('');
+                    }
+                }
+                
+                // Default case: use last segment with original formatting
+                const lastPart = parts[parts.length - 1];
+                return lastPart
+                    .replace(/[^a-zA-Z0-9]/g, ' ')
+                    .split(' ')
+                    .map((word, index) => 
+                        index === 0 
+                            ? word.toLowerCase() 
+                            : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                    .join('');
+            }
+
+            // Helper function to format event text
+            function formatEventText(event) {
+                if (!event) return '';
+
+                // Split the event into parts
+                const [tickPart, ...rest] = event.split(':');
+                const tick = parseInt(tickPart, 10);
+                const time = formatTickToTime(tick);
+
+                // Process the rest of the event
+                let eventText = rest;
+
+                // Format map name if present
+                if (eventText.includes('levels/')) {
+                    eventText = formatMapName(eventText);
+                }
+
+                // Round numbers with 2+ decimal places after "for"
+                const forIndex = eventText.indexOf('for');
+                if (forIndex !== -1) {
+                    eventText = eventText.slice(0, forIndex + 3) + // Keep "for" and everything before it
+                        eventText.slice(forIndex + 3).replace(/\d+\.\d{2,}/g, (match) => {
+                            return parseFloat(match).toFixed(1); // Round to 1 decimal place
+                        });
+                }
+
+                // Return the formatted event text
+                return `[${time}] ${eventText}`;
+            }
+
+            socket.addEventListener('message', (event) => {
+                const data = JSON.parse(event.data);
+                console.log('Received data:', data);
+
+                // Update current game score
+                document.getElementById('red-score').textContent = data.red_team_kills;
+                document.getElementById('blue-score').textContent = data.blue_team_kills;
+
+                // Update series score
+                document.getElementById('red-series-score').textContent = data.series_score.red;
+                document.getElementById('blue-series-score').textContent = data.series_score.blue;
+
+                // Update Red Team table
+                const redTeamTable = document.getElementById('red-team-table').getElementsByTagName('tbody')[0];
+                redTeamTable.innerHTML = '';
+                data.players
+                    .filter(player => player.team === 0)
+                    .forEach(player => {
+                        const row = document.createElement('tr');
+                        if (player.health === 0) row.classList.add('dead');
+                        row.innerHTML = `
+                            <td>${player.name}</td>
+                            <td>${player.kills}</td>
+                            <td>${player.assists}</td>
+                            <td>${player.deaths}</td>
+                        `;
+                        redTeamTable.appendChild(row);
+                    });
+
+                // Update Blue Team table
+                const blueTeamTable = document.getElementById('blue-team-table').getElementsByTagName('tbody')[0];
+                blueTeamTable.innerHTML = '';
+                data.players
+                    .filter(player => player.team === 1)
+                    .forEach(player => {
+                        const row = document.createElement('tr');
+                        if (player.health === 0) row.classList.add('dead');
+                        row.innerHTML = `
+                            <td>${player.kills}</td>
+                            <td>${player.assists}</td>
+                            <td>${player.deaths}</td>
+                            <td>${player.name}</td>
+                        `;
+                        blueTeamTable.appendChild(row);
+                    });
+
+                // Update Event List
+                const events = data.events || [];
+                eventList.innerHTML = ''; // Clear existing events
+                events.forEach((event) => {
+                    const eventItem = document.createElement('div');
+                    eventItem.className = 'event-item';
+                    eventItem.textContent = formatEventText(event);
+                    eventList.prepend(eventItem); // Add new events to the top
+                });
+
+                // Ensure the event list doesn't grow indefinitely
+                while (eventList.children.length > 20) {
+                    eventList.removeChild(eventList.lastChild); // Remove oldest events
+                }
+            });
+
+            socket.addEventListener('error', (event) => {
+                console.error('WebSocket error:', event);
+            });
+
+            socket.addEventListener('close', (event) => {
+                console.log('WebSocket connection closed:', event);
+            });
+        </script>
+    </body>
+</html>

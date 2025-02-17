@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Debugger</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f4f4f4;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            height: 300px;
+            overflow-y: auto;
+        }
+        .event {
+            margin-left: 20px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Debugger</h1>
+    <p>Connecting to WebSocket server at <code>ws://localhost:8765</code>...</p>
+    <div id="output">Waiting for messages...</div>
+
+    <script>
+        // WebSocket connection setup
+        const socket = new WebSocket('ws://localhost:8765');
+
+        // Handle WebSocket connection open
+        socket.addEventListener('open', (event) => {
+            console.log('WebSocket connection opened:', event);
+            document.getElementById('output').innerHTML = 'Connected! Waiting for messages...';
+        });
+
+        // Handle incoming WebSocket messages
+        socket.addEventListener('message', (event) => {
+            const data = JSON.parse(event.data);
+            console.log('Received message:', data);
+
+            // Display the data in the output div
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = `
+                <div><strong>Map Name:</strong> ${data.map_name}</div>
+                <div><strong>Game Type:</strong> ${data.game_type}</div>
+                <div><strong>Variant:</strong> ${data.variant}</div>
+                <div><strong>Real Time Elapsed:</strong> ${data.real_time_elapsed}</div>
+                <div><strong>Events:</strong></div>
+            `;
+
+            // Display each event
+            data.events.forEach((event, index) => {
+                outputDiv.innerHTML += `<div class="event">${index + 1}. ${event}</div>`;
+            });
+
+            // Auto-scroll to the bottom of the output div
+            outputDiv.scrollTop = outputDiv.scrollHeight;
+        });
+
+        // Handle WebSocket errors
+        socket.addEventListener('error', (event) => {
+            console.error('WebSocket error:', event);
+            document.getElementById('output').innerHTML = 'Error connecting to WebSocket server.';
+        });
+
+        // Handle WebSocket connection close
+        socket.addEventListener('close', (event) => {
+            console.log('WebSocket connection closed:', event);
+            document.getElementById('output').innerHTML = 'WebSocket connection closed.';
+        });
+    </script>
+</body>
+</html>
