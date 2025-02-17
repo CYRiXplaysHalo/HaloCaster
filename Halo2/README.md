@@ -17,7 +17,7 @@ Kantanomo originally built out this launcher, called WhatTheFuck, which had the 
 - [x] Show every player's in-game emblem
 - [x] Pop-up count down weapon and power-up timers
 - [x] Print in-game events
-- [ ] 
+
 
 ## Videos
 
@@ -27,75 +27,79 @@ Kantanomo originally built out this launcher, called WhatTheFuck, which had the 
 
 ## Instructions To Use Caster Overlay
 
+![The caster overlay when viewed in a web browser.](images/image6.png)
+
 The scoreboard overlay displays each player's kills, assists, and deaths, as well as what weapon they are actively using, whether they are alive or dead, and what emblem they have.
 
 This very simply is a web page that currently is set up to run on the same computer as the dedicated server, so when you launch XEMU via the WhatTheFuck lanycher the websocket ip address is bound to 127.0.0.1 (the localhost, which is yourself), and to port 3333 (we just had to pick one, it can be any port that works for you). 
 
-
-
+![Where you can modify the IP address and port number on the launcher side.](images/image11.png)
 
 If you want to set a different IP or port, which you would only want to do if you wanted to run the scoreboard or any other overlay on a different computer than the dedi computer, you need to edit websocket_overlays/config.js to match what you set in the app launch window.
 
-
+![Where you can modify the IP address and port number on the overlay side.](images/image4.png)
 
 Now launch the game and for easiest testing I just do a two player splitscreen game. Once I have that running I just open websocket_overlays/obs_overlay_v4_emblem.html in a browser on my computer to verify it is running as expected.
 
-
+![What it looks like to run a test game.](images/image2.png)
 
 Above is me just running the test game, and below is me verifying websocket_overlays/obs_overlay_v4_emblem.html works in firefox.
 
-
+![What it looks like when the caster overlay page is working correctly.](images/image15.png)
 
 Now we can add this into our OBS scene. To do this, add a new source that is the Browser type. In the browser type, take the url in firefox and copy that into the URL field. This is what worked for me, but you can also try just referencing the local file directly but no guarantees that works the same way. 
 
 The other thing I did is double the width and height of this source to better scale the scoreboard with respect to the stream. For my 1920x1080 canvas, I went with a 3840x2160 Browser source that is then scaled down to fit the canvas. Here are my settings.
 
-
+![How I set up the browser source in OBS.](images/image7.png)
 
 As you can see the default custom CSS gets rid of the background and allows the scoreboard background colors to be a little transparent too. Note I also make sure to refresh the browser when the scene becomes active. If the scoreboard seems to no longer update, just hide and bring back this browser source to refresh the page and it should be good to go. And here we go we have a working scoreboard overlay.
 
-
+![How OBS looks when you've configured everything correctly.](images/image3.png)
 
 If you want to manipulate the scoreboard the easiest method is probably to manipulate the source. You can crop it around each scoreboard, make a duplicate so you have both, and move them around as you desire if you want. You can also edit the HTML or CSS in the file itself but the deeper you go into that, the more likely some issues will arise. Javascript interfaces with the websocket layer and if there’s no div to put the text and images then those will just stop working.
 
-Instructions to use weapon timers:
+### Instructions to use weapon timers:
 
 Another cool feature we have is an overlay that pops up whenever a power weapon is going to respawn. This feature I would still like to fine tune some but is very useful from viewers and casters, knowing whether or not players are correctly making a push for a power weapon. Similar to the scoreboard, you just simply have to add a source for the file websocket_overlays/obs_overlay_netgame_v2.html.
 
 The main differences with this one though is you do not need to overscale it like you do with the scoreboard, and you have to add a filter to chroma key out the background (basically applying a green screen). I don’t know why but the same background as the scoreboard just did not seem to work with this and that might have to do with this respawn timers only appearing when necessary. Here’s what my source looks like.
 
+![How I set up the browser source in OBS for the powerup/power weapon timers.](images/image10.png)
 
 And here’s how that chroma key filter is set up:
 
-
+![How I set up the chrom key filter, which eliminates the background.](images/image5.png)
 
 And that’s it. To test it you can pick up a power weapon and throw it off the map. Be patient, but about like a minute later you should see a timer appear in the bottom left corner. When there are multiple power weapons on respawn they will all appear in order down there. 
 
-Instructions to use game event logs:
+### Instructions to use game event logs:
 
 The latest thing we have, Kant built out but I haven’t fully designed is the game events. Not terribly important as the in-game HUD features nearly the same info but it can allow you to put this anywhere on screen and make it more legible and not team biased. The page for this is websocket_overlays/obs_overlay_game_events.html.
 
-
+![Example output of game events.](images/image13.png)
 
 The browser source I set to a resolution of 800x300, that seemed to more or less crop the page to where the text would be. You can play around with this but this source is not one you would just have stretch to fit over the whole canvas and instead should just be in one pocket. 
 
+![How I set up the browser source in OBS for game events.](images/image8.png)
 
+![Example of it working correctly.](images/image12.png)
 
-
-Instructions to use minimap:
+### Instructions to use minimap:
 
 Now this is the least developed overlay, but maybe the coolest. Basically you can get the player’s represented as dots and have that update in realtime, but currently there is no “map” for that to be displayed over. So I don’t expect this to get used yet but figured I would share. The page for this is websocket_overlays/minimap.html.
 
 This page requires entering in the ip and port and pressing connect first, so it might make more sense to leave this open in a browser, and then add this a a window source and not a browser source.
 
+![The debug minimap webpage. Very WIP.](images/image9.png)
 
 Those notes are for me to add to it. But yeah you can add the window source and crop it to something like this:
 
-
+![How I've set it up in OBS for testing.](images/image1.png)
 
 And here’s the source settings:
 
-
+![How the source is configured.](images/image14.png)
 
 But like I said this one is the most WIP and I don’t expect it to be used on a stream. If you want to test it out and give me feedback though I would certainly welcome it. The dots represent the player colors and they get bigger and smaller depending upon how high or low they are in the map, relatively speaking.
 
