@@ -17,7 +17,10 @@ Kantanomo originally built out this launcher, called [WhatTheFuck](https://githu
 - [x] Show every player's in-game emblem
 - [x] Pop-up count down weapon and power-up timers
 - [x] Print in-game events
-
+      
+## TODO
+- [ ] Format game event text to look better. Instead of PlayerA Killed PlayerB with Weapon, use weapon image to simplify the statement. Also change clock formatting from [M:SS:MS] to M:SS
+- [ ] Flesh out mini map. Currently dots are all blue with no identification. Remedy those things by probably numbering players and numbering them on scoreboard. Add direction arrows/vectors. Need to dynamically scale plot by map. Add map background images?
 
 ## Videos
 
